@@ -1,0 +1,123 @@
+@prefix: my;
+
+@base-purple: #464068;
+@base-green: #81b536;
+
+@link: #6d77b8;
+@background: #e8e9eb;
+
+@base-blue: #3798e9;
+
+@light-gray: #f2f2f2;
+
+@border-gray: #bdbdbd;
+@border-shadow: rgba(74,74,74,.1);
+@dark-gray: #999;
+
+@fail-red: #ff6f80;
+
+/// Font
+@font-family-serif      : serif;
+@font-family-sans-serif : "Helvetica Neue" sans-serif;
+@font-family-monospace  : monospace;
+@line-height-computed   : floor((@font-size-base * @line-height-base));
+
+// Legend
+@legend-color                : #999;
+@legend-border-color         : @border-color-base;
+
+// Dropdown
+@dropdown-toggle-hover: #f5f5f5;
+@dropdown-toggle-caret: #777;
+
+//@dropdown-hover-bg-color: @link;
+@dropdown-hover-bg-color: @base-blue;
+@dropdown-border-color: @border-gray;
+@dropdown-menu-font: @fontColor;
+@dropdown-menu-font-chosen: #171717;
+@dropdown-menu-font-modified: @font-color-light1;
+@dropdown-menu-divider: #d9d9d9;
+
+// Background color
+@menu-bg-color: #464068;
+@menu-bg-color-dark1: #3c3759;
+@menu-bg-color-dark2: #342f4d;
+@bg-color-normal: #5058a3;
+@bg-color-light1: #ededf0;
+@bg-color-light2: #f2f2f5;
+@bg-color-light3: #f7f7fa;
+
+// theme(link) color
+@link-color: #6d77b8;
+@link-color-dark: #5d669e;
+@link-color-light1: #7b87d1;
+@link-color-light2: #8a97eb;
+
+// border(divider) color definition
+@border-color-normal: @border-color-split;
+@border-color-light1: #d1d1d1;
+@border-color-light2: @border-color-base;
+@border-color-light3: #e0e0e0;
+
+// font color definition
+@font-color-normal: @text-color;
+@font-color-light1: #666;
+@font-color-light2: #999;
+@font-color-light3: #ccc;
+
+// font size definition
+@font-size-xxs: 12px;
+@font-size-xs: 14px;
+@font-size-lg: 14px;
+@font-size-s: 16px;
+@font-size-m: 18px;
+@font-size-l: 20px;
+@font-size-xl: 24px;
+@font-size-xxl: 30px;
+
+// font size in rem
+@font-size-r-xxs: 1.2rem;
+@font-size-r-xs: 1.4rem;
+@font-size-r-lg: 1.4rem;
+@font-size-r-s: 1.6rem;
+@font-size-r-m: 1.8rem;
+@font-size-r-l: 2rem;
+@font-size-r-xl: 2.4rem;
+@font-size-r-xxl: 3rem;
+
+// pseudo random color
+@random-color-0: #574f80;
+@random-color-1: #8177bf;
+@random-color-2: #3d5a96;
+@random-color-3: #207e74;
+@random-color-4: #3eb994;
+@random-color-5: #60b4db;
+@random-color-6: #32aaff;
+@random-color-7: #e84d3d;
+@random-color-8: #f57e2a;
+@random-color-9: #ff839d;
+
+// layout
+@menu-width: 50px;
+@menu-width-w: 170px;
+@menu-z-index: 100;
+@menu-link-height: 26px;
+@top-height: 50px;
+
+// Avatar
+@avatar-size-xs: 18px;
+@avatar-size-s: 24px;
+@avatar-size-m: 30px;
+@avatar-size-l: 40px;
+@avatar-size-xl: 100px;
+
+// Animations
+@animate-spin: "@{prefix}-animate-spin";
+@keyframes @animate-spin {
+    from {
+        transform:rotate(0deg);
+    }
+    to {
+        transform:rotate(360deg);
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "eslint": {
+        "extends": "airbnb",
+        "env": {
+            "browser": true,
+            "commonjs": true,
+            "es6": true,
+            "node": true,
+        },
+        "rules": {
+            "no-console": 0,
+            "comma-dangle": [2, "only-multiline"],
+            "babel/object-curly-spacing": 0,
+            "fecs-valid-jsdoc": 0,
+        },
+    },
+    "csshint": {},
+    "htmlcs": {},
+    "jformatter": {},
+    "esformatter": {},
+    "csscomb": {}
+}
