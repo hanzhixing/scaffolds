@@ -1,8 +1,6 @@
 const path = require('path');
 const merge = require('webpack-merge');
 
-const fonts = require('./parts/fonts');
-const images = require('./parts/images');
 const styles = require('./parts/styles');
 const scripts = require('./parts/scripts');
 const miscs = require('./parts/miscs');
@@ -22,21 +20,6 @@ module.exports = function (paths) {
         }),
         scripts.lint({
             include: paths.src
-        }),
-        fonts.load({
-            options: {
-                limit: 32768,
-                name: '[name].[hash].[ext]',
-                outputPath: './fonts/',
-            }
-        }),
-        images.load({
-            options: {
-                limit: 32768,
-                name: '[name].[hash].[ext]',
-                outputPath: './fonts/',
-                publicPath: '../fonts/'
-            }
         }),
         scripts.load({
             include: paths.src

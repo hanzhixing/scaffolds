@@ -8,7 +8,7 @@ const vendors = [
     'lodash',
     'md5',
     'moment',
-    'normalize-path',
+    'normalize-url',
     'normalizr',
     'react',
     'react-dnd',

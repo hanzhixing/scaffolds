@@ -30,27 +30,40 @@ exports.sourceMaps = function({ type }) {
 
 
 exports.attachRevision = function() {
+    const gitRevisionPlugin = new GitRevisionPlugin({
+        lightweightTags: true,
+        branch: true,
+    });
+
     return {
         plugins: [
             new webpack.BannerPlugin({
-                banner: new GitRevisionPlugin().version()
+                banner: JSON.stringify({
+                    by: 'git',
+                    version: gitRevisionPlugin.version(),
+                    commithash: gitRevisionPlugin.commithash(),
+                    branch: gitRevisionPlugin.branch(),
+                })
             })
         ]
     };
 };
 
-exports.setFreeVariable = function(key, value) {
-    const env = {};
-    env[key] = JSON.stringify(value);
+exports.setVariables = function (env, keys) {
+    const final = {};
+
+    keys.forEach(key => {
+        final[key] = JSON.stringify(env[key]);
+    });
 
     return {
         plugins: [
-            new webpack.DefinePlugin(env)
+            new webpack.DefinePlugin(final)
         ]
     };
 };
 
-exports.ignore = function({ test, include, exclude }) {
+exports.ignore = function ({ test, include, exclude }) {
     return {
         module: {
             rules: [

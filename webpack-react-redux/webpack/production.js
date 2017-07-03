@@ -19,7 +19,7 @@ module.exports = function (paths) {
                 output: {
                     library: 'agile-frontend-react',
                     libraryTarget: 'amd',
-                    filename: env.minify === 'true' ? 'scripts/[name].min.js' : 'scripts/[name].js'
+                    filename: 'scripts/[name].min.js',
                 },
                 externals: [
                     // 'animate.css',
@@ -46,39 +46,48 @@ module.exports = function (paths) {
                     maxAssetSize: 262144 // in bytes
                 },
                 plugins: [
-                    new webpack.HashedModuleIdsPlugin()
+                    new webpack.HashedModuleIdsPlugin(),
+                    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+                    new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /zh/),
                 ],
-                recordsPath: path.resolve(paths.build, 'records.json')
+                // recordsPath: path.resolve(paths.build, 'records.json')
             },
-            miscs.setFreeVariable(
-                'process.env.NODE_ENV',
-                'production'
-            ),
+            miscs.setVariables(env, [
+                'PROJECT_PRIMARY_API_SERVER',
+            ]),
+            fonts.load({
+                options: {
+                    limit: 32768,
+                    name: '[name].[hash].[ext]',
+                    outputPath: './fonts/',
+                    publicPath: '../'
+                }
+            }),
+            images.load({
+                options: {
+                    limit: 32768,
+                    name: '[name].[hash].[ext]',
+                    outputPath: './fonts/',
+                    publicPath: '../'
+                }
+            }),
             styles.split({
                 options: {
-                    filename: env.minify === 'true' ? 'styles/[name].min.css' : 'styles/[name].css'
+                    filename: 'styles/[name].min.css',
                 }
             }),
             styles.purify({
                 paths: glob.sync(path.join(paths.src, '**', '*'), { nodir: true })
             }),
-            function () {
-                if (env.minify) {
-                    return scripts.minify({useSourceMap: true});
+            styles.minify({
+                options: {
+                    discardComments: {
+                        removeAll: true
+                    },
+                    safe: true
                 }
-            },
-            function () {
-                if (env.minify) {
-                    return styles.minify({
-                        options: {
-                            discardComments: {
-                                removeAll: true
-                            },
-                            safe: true
-                        }
-                    });
-                }
-            },
+            }),
+            scripts.minify({useSourceMap: true}),
             // scripts.splitVendors([
             //   {
             //     name: 'vendor',
@@ -93,12 +102,8 @@ module.exports = function (paths) {
             //   },
             // ]),
             miscs.attachRevision(),
-            miscs.analyzeBunndle(),
-            function () {
-                if (env.minify) {
-                    return miscs.sourceMaps({type: 'source-map'});
-                }
-            }
+            // miscs.analyzeBunndle(),
+            miscs.sourceMaps({type: 'source-map'}),
         ]);
     };
 };

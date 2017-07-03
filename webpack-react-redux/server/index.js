@@ -1,44 +1,107 @@
+const fs = require('fs');
 const path = require('path');
-const dotenv = require('dotenv').config();
+const url = require('url');
+const chalk = require('chalk');
 const express = require('express');
-// const jsonServer = require('json-server');
+const jsonServer = require('json-server');
+const cors = require('cors');
 
-const envFromDotenv = {};
-
-Object.keys(dotenv.parsed).map(function (key, index) {
-    const unPrefixedKey = key.replace('project_', '');
-    envFromDotenv[unPrefixedKey] = dotenv.parsed[key];
-});
-
-if (process.env.NODE_ENV) {
-    envFromDotenv.env = process.env.NODE_ENV;
-}
-
-const env = Object.assign({}, envFromDotenv);
+const env = require('./env');
+const backendProxyMiddleware = require('./middlewares/backendProxyMiddleware');
+const jsonServerRequestAdapter = require('./middlewares/jsonServerRequestAdapter');
+const jsonServerResponseAdapter = require('./middlewares/jsonServerResponseAdapter');
+const staticJsonResponse = require('./middlewares/staticJsonResponse');
+const httpProxy = require('http-proxy');
+const targets = require('./targets');
 
 const server = express();
 
-// const jsonServerRouter = jsonServer.router(path.join(__dirname, 'mock.db.json'));
+const mockServerUrl = url.parse(env.PROJECT_MOCK_SERVER);
+const primaryApiServerProxyUrl = url.parse(env.PROJECT_PRIMARY_API_SERVER_PROXY);
 
-// server.use('/rest/v1', jsonServerRouter);
-server.use(function (req, res, next) {
-    console.log(req.originalUrl);
-    console.log(req.baseUrl);
-    console.log(req.method);
-    console.log(req.params);
-    console.log(req.path);
-    console.log(req.query);
-    const filepath = path.resolve(path.join(
-        __dirname,
-        './mock',
-        req.baseUrl,
-        req.path,
-        req.method + '.json'
-    ));
-    res.setHeader('Cache-Control', 'no-cache');
-    res.sendFile(filepath);
+const backendProxyConfig = {
+    target: env.PROJECT_PRIMARY_API_SERVER_PROXY,
+    headers: {
+        cookie: fs.readFileSync(path.resolve(__dirname, './COOKIE'), 'utf8').trim(),
+    },
+    cookieDomainRewrite: {
+        [mockServerUrl.host]: primaryApiServerProxyUrl.host,
+    },
+    changeOrigin: true
+};
+
+const proxy = httpProxy.createProxyServer(backendProxyConfig);
+
+const jsonServerRouter = jsonServer.router(path.join(__dirname, 'db.json'));
+
+jsonServerRouter.render = jsonServerResponseAdapter(
+    targets.filter(target => (target.mode === 'json-server'))
+        .map(target => {
+            const rule = {
+                regex: target.regex,
+            };
+
+            if (target.meta && target.meta.responseDecorate) {
+                rule.responseDecorate = target.meta.responseDecorate;
+            }
+
+            return rule;
+        })
+);
+
+server.use([
+    cors(),
+    staticJsonResponse(
+        path.join(__dirname, 'mock')
+    )(
+        targets.filter(target => (target.mode === 'static'))
+            .map(target => (target.regex))
+    ),
+    backendProxyMiddleware(
+        proxy
+    )(
+        targets.filter(target => (target.mode === 'proxy-backend'))
+            .map(target => (target.regex))
+    ),
+    jsonServerRequestAdapter(
+        targets.filter(target => (target.mode === 'json-server'))
+            .map(target => {
+                const rule = {
+                    regex: target.regex,
+                };
+
+                if (target.meta && target.meta.urlRewrite) {
+                    rule.urlRewrite = target.meta.urlRewrite;
+                }
+
+                if (target.meta && target.meta.responseDecorate) {
+                    rule.responseDecorate = target.meta.responseDecorate;
+                }
+
+                return rule;
+            })
+    ),
+    jsonServer.defaults(),
+    jsonServerRouter,
+]);
+
+process.openStdin().addListener('data', (d) => {
+    const cookie = d.toString().trim();
+    if (cookie) {
+        backendProxyConfig.headers.cookie = cookie;
+    }
 });
 
-server.listen(env.mock_server_port, env.mock_server_ip, () => {
-    console.log('Listening on', env.mock_server_port, ':', env.mock_server_ip);
-});
+server.listen(
+    mockServerUrl.port,
+    mockServerUrl.hostname,
+    () => {
+        console.log(chalk.yellow(
+            'Mock Server is listening on:',
+            mockServerUrl.port,
+            ':',
+            mockServerUrl.hostname
+        ));
+        console.log(chalk.blue('Paste cookie in case proxy backend:'));
+    }
+);
